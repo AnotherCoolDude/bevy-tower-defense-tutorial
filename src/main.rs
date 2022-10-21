@@ -1,6 +1,10 @@
 use bevy::{pbr::NotShadowCaster, prelude::*, utils::FloatOrd};
 use bevy_inspector_egui::WorldInspectorPlugin;
 use bevy_mod_picking::*;
+use bevy_rapier3d::{
+    prelude::{NoUserData, RapierPhysicsPlugin},
+    render::RapierDebugRenderPlugin,
+};
 
 pub const HEIGHT: f32 = 720.0;
 pub const WIDTH: f32 = 1280.0;
@@ -13,10 +17,12 @@ pub struct GameAssets {
 }
 
 mod bullet;
+mod physics;
 mod target;
 mod tower;
 
 pub use bullet::*;
+pub use physics::*;
 pub use target::*;
 pub use tower::*;
 
@@ -36,6 +42,10 @@ fn main() {
         .add_plugin(WorldInspectorPlugin::new())
         // Mod Picking
         .add_plugins(DefaultPickingPlugins)
+        // Physics Plugin
+        .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
+        .add_plugin(RapierDebugRenderPlugin::default())
+        .add_plugin(PhysicsPlugin)
         // Our Systems
         .add_plugin(TowerPlugin)
         .add_plugin(TargetPlugin)
@@ -152,6 +162,7 @@ fn spawn_basic_scene(
         })
         .insert(Target { speed: 0.3 })
         .insert(Health { value: 3 })
+        .insert_bundle(PhysicsBundle::moving_entity(Vec3::new(0.4, 0.4, 0.4)))
         .insert(Name::new("Target"));
 
     commands
@@ -162,6 +173,7 @@ fn spawn_basic_scene(
         })
         .insert(Target { speed: 0.3 })
         .insert(Health { value: 3 })
+        .insert_bundle(PhysicsBundle::moving_entity(Vec3::new(0.4, 0.4, 0.4)))
         .insert(Name::new("Target"));
 
     commands
